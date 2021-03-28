@@ -13,7 +13,7 @@
               :key="coin.id"
               class="col-lg-6 mb-4"
             >
-              <Coin :coin="coin" />
+              <Coin :coin="coin"/>
             </div>
           </div>
 
@@ -34,27 +34,19 @@
             </div>
           </footer>
         </div>
+
         <div class="col-lg-3">
-          <h5>Twitter Feed</h5>
-          <div class="feed-container mb-4">
-            <twitter>
-              <a
-                class="twitter-timeline"
-                href="https://twitter.com/BBCAfrica?ref_src=twsrc%5Etfw"
-              >
-                Tweets by BBCAfrica
+          <h5>
+            Twitter Feed
+          </h5>
+          <div
+            v-for="feed in feeds" :key="feed.name"
+            class="feed-container mb-4">
+            <!-- <twitter>
+              <a :href="feed.feed_url" class="twitter-timeline"  >
+                {{ feed.name }}
               </a>
-            </twitter>
-          </div>
-          <div class="feed-container">
-            <twitter>
-              <a
-                class="twitter-timeline"
-                href="https://twitter.com/ethereum?ref_src=twsrc%5Etfw"
-              >
-                Ethereum
-              </a>
-            </twitter>
+            </twitter> -->
           </div>
         </div>
       </div>
@@ -68,8 +60,8 @@
       </div>
       <img :src="screenshotUrl" alt="" />
     </div>
-
-    <div class="modal-backdrop" v-show="screenshotUrl"></div>
+    <div class="modal-backdrop" v-show="screenshotUrl">
+    </div>
 
     <button @click="takeScreenshot" type="button" class="fab">
       <img src="./assets/camera.svg" alt="">
@@ -86,9 +78,26 @@ export default {
   components: {
     Coin,
   },
+  computed:{
+    coinNames(){
+      return this.coins.map(coin => coin.name)
+    }
+  },
   data() {
     return {
       coins: [],
+      feeds: [
+        {
+          name: 'BBCAfrica',
+          title: 'Tweets by BBCAfrica',
+          feed_url: 'https://twitter.com/BBCAfrica?ref_src=twsrc%5Etfw'
+        },
+        {
+          name: 'Ethereum',
+          title: 'Ethereum Twitter Feed',
+          feed_url: 'https://twitter.com/ethereum?ref_src=twsrc%5Etfw'
+        }
+      ],
       contactInfoLinks: [
         {
           icon: "",
@@ -113,12 +122,8 @@ export default {
         },
       ],
       profileQrData: {
-        slug: "Juan Tabares",
-        quote: {
-          USD: {
-            price: "No price in",
-          },
-        },
+        name: "Juan Tabares",
+        price: "No price in",
       },
       screenshotUrl: "",
     };
@@ -127,24 +132,27 @@ export default {
     async takeScreenshot() {
       const el = this.$refs.printable;
       const options = {
+        allowTaint: true,
         useCORS: true,
         type: "dataURL",
-      };
+      }
       this.screenshotUrl = await this.$html2canvas(el, options);
     },
     fetchCoinsPrice() {
-      let config = {
-        headers: {
-          "X-CMC_PRO_API_KEY": "02710d96-5ee6-4c87-8d7e-c17228e2a664",
-        }
-      };
-      let url = "https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?slug=tezos,burst,cardano"
-      axios.get(url, {}, config).then( response => {
-        this.coins = Object.values(response.data.data);
+      let url = "https://api.coingecko.com/api/v3/simple/price?ids=cardano,burst,tezos&vs_currencies=usd"
+      axios.get(url).then( response => {
+        this.coins = Object.entries(response.data)
+                  .map(coin => ({name: coin[0], price: coin[1].usd}) )
       })
-    },
+    }
   },
   mounted() {
+    let img = new Image()
+    img.src = require('@/assets/logo.png')
+    console.log( img )
+    img.onload = () => {
+      console.log('Oquis')
+    }
     this.fetchCoinsPrice();
   },
 };

@@ -1,10 +1,10 @@
 <template>
   <div class="coin">
       <h4 class="coin-name">
-        {{ coin.slug }}
+        {{ coin.name }}
       </h4>
-      <div v-if="coin.quote" class="coin-price">
-        {{ coin.quote.USD.price }}
+      <div v-if="coin.price" class="coin-price">
+        {{ coin.price }}
       </div>
       <div class="coin-qr">
         <QRCanvas :options="qrOptions"></QRCanvas>
@@ -18,6 +18,11 @@ export default {
   name: 'Coin',
   components:{ QRCanvas: QRCanvas },
   props: { coin: Object},
+  computed:{
+    iconUrl(){
+      return `https://cryptologos.cc/logos/thumbs/${ this.coin.name }.png?v=010`
+    }
+  },
   data(){return {
     qrOptions: {
       cellSize: 4,
@@ -25,9 +30,10 @@ export default {
     }
   }},
   mounted(){
-    this.qrOptions.data = this.coin.slug + this.coin.price + 'USD'
+    this.qrOptions.data = this.coin.name + this.coin.price + 'USD'
     const image = new Image();
-    image.src = `https://s2.coinmarketcap.com/static/img/coins/64x64/${this.coin.id}.png`;
+    image.src = this.iconUrl
+    image.crossOrigin = 'Anonymous';
     let that = this
     image.onload = () => {
       that.qrOptions = {...this.qrOptions, logo: { image } }

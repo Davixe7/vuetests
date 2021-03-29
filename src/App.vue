@@ -42,11 +42,11 @@
           <div
             v-for="feed in feeds" :key="feed.name"
             class="feed-container mb-4">
-            <!-- <twitter>
+            <twitter>
               <a :href="feed.feed_url" class="twitter-timeline"  >
                 {{ feed.name }}
               </a>
-            </twitter> -->
+            </twitter>
           </div>
         </div>
       </div>
@@ -139,20 +139,16 @@ export default {
       this.screenshotUrl = await this.$html2canvas(el, options);
     },
     fetchCoinsPrice() {
-      let url = "https://api.coingecko.com/api/v3/simple/price?ids=cardano,burst,tezos&vs_currencies=usd"
+      // let url = "https://api.coingecko.com/api/v3/simple/price?ids=cardano,burst,tezos&vs_currencies=usd"
+      let url = 'https://api.nomics.com/v1/currencies/ticker?key=a144193450b0eb6509dd8e9b20b88995&ids=ADA,XTZ,BURST'
       axios.get(url).then( response => {
-        this.coins = Object.entries(response.data)
-                  .map(coin => ({name: coin[0], price: coin[1].usd}) )
+        this.coins = [...response.data]
+        // this.coins = Object.entries(response.data)
+        //           .map(coin => ({name: coin[0], price: coin[1].usd}) )
       })
     }
   },
   mounted() {
-    let img = new Image()
-    img.src = require('@/assets/logo.png')
-    console.log( img )
-    img.onload = () => {
-      console.log('Oquis')
-    }
     this.fetchCoinsPrice();
   },
 };

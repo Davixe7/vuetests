@@ -20,7 +20,7 @@ export default {
   props: { coin: Object},
   computed:{
     iconUrl(){
-      return `https://cryptologos.cc/logos/thumbs/${ this.coin.name }.png?v=010`
+      return `https://cryptoicons.org/api/icon/${this.coin.symbol.toLowerCase()}/64`
     }
   },
   data(){return {
@@ -32,6 +32,7 @@ export default {
   mounted(){
     this.qrOptions.data = this.coin.name + this.coin.price + 'USD'
     const image = new Image();
+    // image.src = this.iconUrl
     image.src = this.iconUrl
     image.crossOrigin = 'Anonymous';
     let that = this

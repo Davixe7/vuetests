@@ -20,7 +20,7 @@ export default {
   props: { coin: Object},
   computed:{
     iconUrl(){
-      return `https://cryptoicons.org/api/icon/${this.coin.symbol.toLowerCase()}/64`
+      return `../assets/icons/${this.coin.symbol.toLowerCase()}.png`
     }
   },
   data(){return {

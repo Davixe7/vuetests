@@ -133,7 +133,7 @@ export default {
       ],
       profileQrData: {
         name: "Juan Tabares",
-        price: "No price in",
+        price: "",
       },
       screenshotUrl: "",
     };

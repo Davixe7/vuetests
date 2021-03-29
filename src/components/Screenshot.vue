@@ -19,12 +19,12 @@
 
 <script>
 export default {
-  props: { canvas: Object },
+  props: { canvas: HTMLDivElement },
   data() {
     return {
       screenshotUrl: "",
       options: {
-        allowTaint: true,
+        allowTaint: false,
         useCORS: true,
         type: "dataURL",
       },

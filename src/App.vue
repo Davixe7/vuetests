@@ -113,12 +113,13 @@ export default {
   }},
   methods: {
     fetchCoinsPrice() {
-      axios.get('http://localhost:8000/cmc')
-           .then( response => this.coins = [...response.data.data])
+      axios.get('http://localhost:3000')
+           .then( response => this.coins = [...response.data])
     }
   },
   mounted() {
-    this.fetchCoinsPrice();
+    this.viewport = this.$refs.printable
+    this.fetchCoinsPrice()
   },
 };
 </script>

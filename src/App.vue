@@ -2,8 +2,8 @@
   <div id="app" ref="printable">
     <div class="container">
       <div class="row">
-        <div class="col-lg-9">
-          <h5>Featured Info</h5>
+        <div class="col-lg-2">
+           <h5>Featured Info</h5>
           <div v-if="coins.length" class="row">
             <div class="col-lg-6 mb-4">
               <Coin :coin="profileQrData" />
@@ -17,37 +17,30 @@
             </div>
           </div>
 
-          <footer>
-            <div class="row">
-              <div class="col-lg-3 pt-3">
-                Contact Info
-              </div>
-              <div class="col-lg-9">
-                <ul class="contact-info">
-                  <li v-for="link in contactInfoLinks" :key="link.text">
-                    <a :href="link.url" target="_blank">
-                      {{ link.text }}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </footer>
+         
         </div>
-
-        <div class="col-lg-3">
-          <h5>
-            Twitter Feed
+         <div class="col-lg-5 twitter">
+           <h5>
+            BBCAfrica
           </h5>
-          <div
-            v-for="feed in feeds" :key="feed.name"
-            class="feed-container mb-4">
+          
             <twitter>
-              <a :href="feed.feed_url" class="twitter-timeline"  >
-                {{ feed.name }}
+              <a :href="feeds[0].feed_url" class="twitter-timeline"  >
+                {{ feeds[0].name }}
               </a>
             </twitter>
-          </div>
+          
+         </div>
+
+        <div class="col-lg-5 twitter">
+          <h5>
+            Ethereum
+          </h5>
+           <twitter>
+              <a :href="feeds[1].feed_url" class="twitter-timeline"  >
+                {{ feeds[1].name }}
+              </a>
+            </twitter>
         </div>
       </div>
     </div>
@@ -66,7 +59,24 @@
     <button @click="takeScreenshot" type="button" class="fab">
       <img src="./assets/camera.svg" alt="">
     </button>
+     <footer>
+            <div class="row">
+              <div class="col-lg-3 pt-3">
+                Contact Info
+              </div>
+              <div class="col-lg-9">
+                <ul class="contact-info">
+                  <li v-for="link in contactInfoLinks" :key="link.text">
+                    <a :href="link.url" target="_blank">
+                      {{ link.text }}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </footer>
   </div>
+  
 </template>
 
 <script>
@@ -183,6 +193,7 @@ export default {
 
   .container {
     padding: 20px;
+    max-width: 100vw !important;
   }
 
   .coins {
@@ -210,8 +221,8 @@ export default {
     border-radius: 50%;
     z-index: 1000;
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 100px;
+    left: 30px;
     box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     background: #fff;
@@ -275,5 +286,9 @@ export default {
     z-index: 1100;
     top: 0;
     left: 0;
+  }
+  .twitter{
+    height: 85vh;
+    overflow: auto;
   }
 </style>

@@ -52,100 +52,69 @@
       </div>
     </div>
 
-    <div class="modal" v-show="screenshotUrl">
-      <div class="modal-actions">
-        <span @click="screenshotUrl = ''" class="modal-action">
-          &times;
-        </span>
-      </div>
-      <img :src="screenshotUrl" alt="" />
-    </div>
-    <div class="modal-backdrop" v-show="screenshotUrl">
-    </div>
-
-    <button @click="takeScreenshot" type="button" class="fab">
-      <img src="./assets/camera.svg" alt="">
-    </button>
+    <Screenshot :canvas="viewport">
+    </Screenshot>
+    
   </div>
 </template>
 
 <script>
-import Coin from "./components/Coin.vue";
-import axios from "axios";
+import Screenshot from "./components/Screenshot.vue"
+import Coin from "./components/Coin.vue"
+import axios from "axios"
 
 export default {
   name: "App",
   components: {
-    Coin,
+    Coin, Screenshot
   },
-  computed:{
-    coinNames(){
-      return this.coins.map(coin => coin.name)
-    }
-  },
-  data() {
-    return {
-      coins: [],
-      feeds: [
-        {
-          name: 'BBCAfrica',
-          title: 'Tweets by BBCAfrica',
-          feed_url: 'https://twitter.com/BBCAfrica?ref_src=twsrc%5Etfw'
-        },
-        {
-          name: 'Ethereum',
-          title: 'Ethereum Twitter Feed',
-          feed_url: 'https://twitter.com/ethereum?ref_src=twsrc%5Etfw'
-        }
-      ],
-      contactInfoLinks: [
-        {
-          icon: "",
-          text: "Github",
-          url: "https://github.com/juantabares",
-        },
-        {
-          icon: "",
-          text: "LinkedIn",
-          url: "https://github.com/juantabares",
-        },
-        {
-          icon: "",
-          text: "juantabares@gmail.com",
-          url: "mailto:juantabares@gmail.com",
-          mail: true,
-        },
-        {
-          icon: "",
-          text: "Resume",
-          url: "https://github.com/juantabares",
-        },
-      ],
-      profileQrData: {
-        name: "Juan Tabares",
-        price: "No price in",
+  data() {return {
+    viewport: this.$refs.printable,
+    coins: [],
+    feeds: [
+      {
+        name: 'BBCAfrica',
+        title: 'Tweets by BBCAfrica',
+        feed_url: 'https://twitter.com/BBCAfrica?ref_src=twsrc%5Etfw'
       },
-      screenshotUrl: "",
-    };
-  },
-  methods: {
-    async takeScreenshot() {
-      const el = this.$refs.printable;
-      const options = {
-        allowTaint: true,
-        useCORS: true,
-        type: "dataURL",
+      {
+        name: 'Ethereum',
+        title: 'Ethereum Twitter Feed',
+        feed_url: 'https://twitter.com/ethereum?ref_src=twsrc%5Etfw'
       }
-      this.screenshotUrl = await this.$html2canvas(el, options);
-    },
+    ],
+    contactInfoLinks: [
+      {
+        icon: "",
+        text: "Github",
+        url: "https://github.com/juantabares",
+      },
+      {
+        icon: "",
+        text: "LinkedIn",
+        url: "https://github.com/juantabares",
+      },
+      {
+        icon: "",
+        text: "juantabares@gmail.com",
+        url: "mailto:juantabares@gmail.com",
+        mail: true,
+      },
+      {
+        icon: "",
+        text: "Resume",
+        url: "https://github.com/juantabares",
+      },
+    ],
+    profileQrData: {
+      name: "Juan Tabares",
+      price: "No price in",
+    }    
+  }},
+  methods: {
     fetchCoinsPrice() {
-      // let url = "https://api.coingecko.com/api/v3/simple/price?ids=cardano,burst,tezos&vs_currencies=usd"
-      let url = 'https://api.nomics.com/v1/currencies/ticker?key=a144193450b0eb6509dd8e9b20b88995&ids=ADA,XTZ,BURST'
-      axios.get(url).then( response => {
-        this.coins = [...response.data]
-        // this.coins = Object.entries(response.data)
-        //           .map(coin => ({name: coin[0], price: coin[1].usd}) )
-      })
+      axios.get('http://localhost:8000/cmc')
+           .then( response => this.coins = [...response.data.data])
     }
   },
   mounted() {
@@ -180,46 +149,13 @@ export default {
     top: 0;
     left: 0;
   }
-
   .container {
     padding: 20px;
   }
-
   .coins {
     display: flex;
     flex-flow: row nowrap;
   }
-
-  .feed {
-    display: flex;
-    flex-flow: row nowrap;
-    overflow: auto;
-    padding: 0 0 20px;
-    margin-bottom: 40px;
-  }
-  .feed-item {
-    flex: 1 0 200px;
-    margin-right: 30px;
-    background: gray;
-    height: 200px;
-  }
-  .fab {
-    width: 60px;
-    height: 60px;
-    border: none;
-    border-radius: 50%;
-    z-index: 1000;
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
-    background: #fff;
-  }
-  .fab img {
-    width: 30px;
-  }
-
   .contact-info {
     display: flex;
     flex-flow: row nowrap;
@@ -237,43 +173,10 @@ export default {
       overflow: auto;
     }
   }
-
   footer {
     padding: 10px 30px 10px;
     border-radius: 4px;
     background: #fff;
     box-shadow: 0 1px 7px 1px rgba(0, 0, 0, 0.18);
-  }
-
-  .modal {
-    position: fixed;
-    z-index: 1200;
-    width: 70%;
-    height: auto;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .modal-actions {
-    padding: 10px;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .modal-action {
-    font-size: 24px;
-    color: #fff;
-    cursor: pointer;
-  }
-  .modal img {
-    max-width: 100%;
-  }
-  .modal-backdrop {
-    height: 100vh;
-    width: 100vw;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1100;
-    top: 0;
-    left: 0;
   }
 </style>

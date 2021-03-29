@@ -7,7 +7,8 @@
         {{ coin.price }}
       </div>
       <div class="coin-qr">
-        <QRCanvas :options="qrOptions"></QRCanvas>
+        <QRCanvas :options="qrOptions">
+        </QRCanvas>
       </div>
   </div>
 </template>
@@ -18,11 +19,6 @@ export default {
   name: 'Coin',
   components:{ QRCanvas: QRCanvas },
   props: { coin: Object},
-  computed:{
-    iconUrl(){
-      return `https://cryptoicons.org/api/icon/${this.coin.symbol.toLowerCase()}/64`
-    }
-  },
   data(){return {
     qrOptions: {
       cellSize: 4,
@@ -32,8 +28,7 @@ export default {
   mounted(){
     this.qrOptions.data = this.coin.name + this.coin.price + 'USD'
     const image = new Image();
-    // image.src = this.iconUrl
-    image.src = this.iconUrl
+    image.src = this.coin.logo_url
     image.crossOrigin = 'Anonymous';
     let that = this
     image.onload = () => {

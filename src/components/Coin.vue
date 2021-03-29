@@ -18,11 +18,6 @@ export default {
   name: 'Coin',
   components:{ QRCanvas: QRCanvas },
   props: { coin: Object},
-  computed:{
-    iconUrl(){
-      return `../assets/icons/${this.coin.symbol.toLowerCase()}.png`
-    }
-  },
   data(){return {
     qrOptions: {
       cellSize: 4,
@@ -31,9 +26,9 @@ export default {
   }},
   mounted(){
     this.qrOptions.data = this.coin.name + this.coin.price + 'USD'
+    if( !this.coin.symbol ) return
     const image = new Image();
-    // image.src = this.iconUrl
-    image.src = this.iconUrl
+    image.src = require(`@/assets/icons/${this.coin.symbol.toLowerCase()}.png`)
     image.crossOrigin = 'Anonymous';
     let that = this
     image.onload = () => {

@@ -3,8 +3,8 @@
       <h4 class="coin-name">
         {{ coin.name }}
       </h4>
-      <div v-if="coin.price" class="coin-price">
-        {{ coin.price }}
+      <div class="coin-price">
+        {{ usdPrice }}
       </div>
       <div class="coin-qr">
         <QRCanvas :options="qrOptions"></QRCanvas>
@@ -18,14 +18,22 @@ export default {
   name: 'Coin',
   components:{ QRCanvas: QRCanvas },
   props: { coin: Object},
+  computed:{
+    usdPrice(){
+      return this.coin.price
+             ? this.coin.price + ' USD'
+             : 'No price to show'
+    }
+  },
   data(){return {
     qrOptions: {
       cellSize: 4,
-      correctLevel: 'H'
+      correctLevel: 'H',
+      data: ''
     }
   }},
   mounted(){
-    this.qrOptions.data = this.coin.name + this.coin.price + 'USD'
+    this.qrOptions = {...this.qrOptions, data: this.coin.name + ' ' + this.usdPrice }
     if( !this.coin.symbol ) return
     const image = new Image();
     image.src = require(`@/assets/icons/${this.coin.symbol.toLowerCase()}.png`)
@@ -54,8 +62,5 @@ export default {
 }
 .coin-price {
   margin-bottom: 20px;
-}
-.coin-price:after {
-  content: ' USD';
 }
 </style>

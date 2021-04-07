@@ -16,20 +16,20 @@
         <div class="col-lg-4 twitter">
           <h5>BBCAfrica</h5>
 
-          <twitter>
+          <!-- <twitter>
             <a :href="feeds[0].feed_url" class="twitter-timeline">
               {{ feeds[0].name }}
             </a>
-          </twitter>
+          </twitter> -->
         </div>
 
         <div class="col-lg-4 twitter">
           <h5>Ethereum</h5>
-          <twitter>
+          <!-- <twitter>
             <a :href="feeds[1].feed_url" class="twitter-timeline">
               {{ feeds[1].name }}
             </a>
-          </twitter>
+          </twitter> -->
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ export default {
     },
   },
   mounted() {
-    this.fetchCoinsPrice();
+    //this.fetchCoinsPrice();
   },
 };
 </script>

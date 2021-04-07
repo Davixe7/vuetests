@@ -1,9 +1,10 @@
 module.exports = {
   pluginOptions: {
-      electronBuilder: {
-          builderOptions: {
-              productName: "VueJS Test",
-          },
+    electronBuilder: {
+      preload: 'src/preload.js',
+      builderOptions: {
+        productName: "VueJS Test",
       },
+    },
   },
 };

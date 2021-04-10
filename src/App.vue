@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-lg-4">
           <h5>Featured Info</h5>
-          <div v-if="coins.length" class="row">
+          <div v-if="coins && coins.length" class="row">
             <div class="col-lg-6 mb-4">
               <Coin :coin="profileQrData" />
             </div>
@@ -13,44 +13,60 @@
             </div>
           </div>
         </div>
+
         <div class="col-lg-4 twitter">
           <h5>BBCAfrica</h5>
-
-          <!-- <twitter>
+          <twitter>
             <a :href="feeds[0].feed_url" class="twitter-timeline">
               {{ feeds[0].name }}
             </a>
-          </twitter> -->
+          </twitter>
         </div>
 
         <div class="col-lg-4 twitter">
           <h5>Ethereum</h5>
-          <!-- <twitter>
+          <twitter>
             <a :href="feeds[1].feed_url" class="twitter-timeline">
               {{ feeds[1].name }}
             </a>
-          </twitter> -->
+          </twitter>
         </div>
       </div>
     </div>
 
-    <div class="modal" v-show="screenshotUrl">
-      <div class="modal-actions">
-        <span @click="screenshotUrl = ''" class="modal-action"> &times; </span>
-      </div>
-      <img :src="screenshotUrl" alt="" />
-    </div>
-    <div class="modal-backdrop" v-show="screenshotUrl"></div>
+    <modal
+      :active="!!screenshot.url"
+      :loading="screenshot.loading"
+      @modalclosed="()=>screenshot.url=''">
+      <img :src="screenshot.url" alt="">
+    </modal>
 
-    <button @click="takeScreenshot" type="button" class="fab">
-      <img src="./assets/camera.svg" alt="" />
-    </button>
+    <div class="fabs-container">
+      <button
+        @click="takeScreenshot"
+        type="button"
+        class="fab">
+        <div v-if="screenshot.loading">...</div>
+        <img v-else src="./assets/camera.svg" alt="screenshot" />
+      </button>
+
+      <button
+        v-show="coins && coins.length"
+        @click="getCSV"
+        type="button"
+        class="fab">
+        CSV
+      </button>
+    </div>
+
     <footer>
       <div class="row">
         <div class="col-lg-3 pt-3">Contact Info</div>
         <div class="col-lg-9">
           <ul class="contact-info">
-            <li v-for="link in contactInfoLinks" :key="link.text">
+            <li
+              v-for="link in contactInfoLinks"
+              :key="link.text">
               <a :href="link.url" target="_blank">
                 {{ link.text }}
               </a>
@@ -64,16 +80,18 @@
 
 <script>
 import Coin from "./components/Coin.vue";
+import Modal from "./components/Modal.vue";
 import axios from "axios";
 
 export default {
   name: "App",
   components: {
     Coin,
+    Modal
   },
   computed: {
-    coinNames() {
-      return this.coins.map((coin) => coin.name);
+    exportableData() {
+      return [...this.coins, this.profileQrData]
     },
   },
   data() {
@@ -118,29 +136,39 @@ export default {
         name: "Juan Tabares",
         price: "",
       },
-      screenshotUrl: "",
+      screenshot: {
+        url: '',
+        loading: false
+      },
     };
   },
   methods: {
+    getCSV() {
+      if (!window.ipcRenderer){
+        alert("Only available in Electron Desktop Version")
+        return
+      }
+      window.ipcRenderer.send("csv:get", JSON.stringify(this.exportableData));
+    },
     async takeScreenshot() {
-      const el = this.$refs.printable;
       const options = {
-        allowTaint: false,
-        useCORS: true,
         type: "dataURL",
+        useCORS: true,
+        allowTaint: false,
       };
-      this.screenshotUrl = await this.$html2canvas(el, options);
+      this.screenshot.loading = true
+      this.screenshot.url = await this.$html2canvas(this.$refs.printable, options);
+      this.screenshot.loading = false
     },
     fetchCoinsPrice() {
-      let url =
-        "https://api.nomics.com/v1/currencies/ticker?key=a144193450b0eb6509dd8e9b20b88995&ids=ADA,XTZ,BURST";
+      let url = "https://api.nomics.com/v1/currencies/ticker?key=a144193450b0eb6509dd8e9b20b88995&ids=ADA,XTZ,BURST";
       axios.get(url).then((response) => {
         this.coins = [...response.data];
       });
     },
   },
   mounted() {
-    //this.fetchCoinsPrice();
+    this.fetchCoinsPrice();
   },
 };
 </script>
@@ -162,56 +190,21 @@ h5 {
   padding: 0 20px;
   background: #efefef;
 }
-.navbar {
-  height: 100vh;
-  width: 50px;
-  background: blue;
-  margin-bottom: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
 .container {
   padding: 20px;
   max-width: 100vw !important;
+}
+footer {
+  padding: 10px 30px 10px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 7px 1px rgba(0, 0, 0, 0.18);
 }
 
 .coins {
   display: flex;
   flex-flow: row nowrap;
 }
-
-.feed {
-  display: flex;
-  flex-flow: row nowrap;
-  overflow: auto;
-  padding: 0 0 20px;
-  margin-bottom: 40px;
-}
-.feed-item {
-  flex: 1 0 200px;
-  margin-right: 30px;
-  background: gray;
-  height: 200px;
-}
-.fab {
-  width: 60px;
-  height: 60px;
-  border: none;
-  border-radius: 50%;
-  z-index: 1000;
-  position: fixed;
-  bottom: 100px;
-  left: 30px;
-  box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  background: #fff;
-}
-.fab img {
-  width: 30px;
-}
-
 .contact-info {
   display: flex;
   flex-flow: row nowrap;
@@ -223,50 +216,26 @@ h5 {
   text-decoration: none;
   color: #2d2d2d;
 }
-@media (min-width: 991px) {
-  .feed-container {
-    max-height: calc(50vh - 100px);
-    overflow: auto;
-  }
-}
-
-footer {
-  padding: 10px 30px 10px;
-  border-radius: 4px;
-  background: #fff;
-  box-shadow: 0 1px 7px 1px rgba(0, 0, 0, 0.18);
-}
-
-.modal {
-  position: fixed;
-  z-index: 1200;
-  width: 70%;
-  height: auto;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.modal-actions {
-  padding: 10px;
+.fabs-container {
   display: flex;
-  justify-content: flex-end;
-}
-.modal-action {
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
-}
-.modal img {
-  max-width: 100%;
-}
-.modal-backdrop {
-  height: 100vh;
-  width: 100vw;
+  flex-flow: column nowrap;
   position: fixed;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1100;
-  top: 0;
-  left: 0;
+  bottom: 70px;
+  left: 30px;
+  z-index: 1000;
+}
+.fab {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 1px 15px 1px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  background: #fff;
+}
+.fab img {
+  width: 30px;
 }
 .twitter {
   height: 85vh;

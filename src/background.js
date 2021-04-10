@@ -1,9 +1,14 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import fs from 'fs'
+import { ObjectsToCsv } from 'objects-to-csv'
+import getMAC from 'getmac'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const minizip = require('minizip-asm.js')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -19,8 +24,27 @@ async function createWindow() {
       
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: false,
+      preload: __dirname + '/preload.js',
+      webSecurity: false
     }
+  })
+
+  ipcMain.on('csv:get', async function(e, list){
+    const csv = new ObjectsToCsv( JSON.parse( list ) )
+    const csvContent = await csv.toDisk('cryptos.csv')
+
+    const mz = new minizip()
+    mz.append('data.csv', Buffer.from(csvContent), {password: getMAC() })
+    
+    dialog.showSaveDialog(win, {
+      title: 'Download data as CSV',
+      defaultPath: 'download/data.zip',
+    })
+    .then(selection => {
+      if( selection.canceled || !selection.filePath ) return
+      fs.writeFileSync(selection.filePath, Buffer.from( mz.zip() ))
+    })
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
